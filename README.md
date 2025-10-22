@@ -1,70 +1,74 @@
-# Getting Started with Create React App
+## Segment App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Simple React app to create and save a customer segment using a right-side modal. Users can name a segment, add multiple schema fields via dropdowns, and POST the payload to a webhook.
 
-## Available Scripts
+### Features
+- "Save segment" button opens a right-side modal with teal header
+- Segment name input, helper message, legend for User vs Group traits
+- Add schemas via dropdown; each added row has a colored dot and remove button
+- Available options always exclude already-selected fields
+- Posts JSON to a webhook; development proxy avoids browser CORS
 
-In the project directory, you can run:
+### Tech
+- React (Create React App)
+- Component: `src/components/SegmentModal.js`
+- Styles: `src/components/SegmentModal.css`
 
-### `npm start`
+### Getting Started
+1) Install
+```
+npm install
+```
+2) Start dev server
+```
+npm start
+```
+The app runs at http://localhost:3000
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Save Endpoint and CORS (Development)
+This project forwards API calls to Webhook.site using CRA’s proxy:
+- `package.json` contains:
+```
+"proxy": "https://webhook.site"
+```
+- The modal posts to the relative path:
+```
+/fbe4d0ba-5b71-4a9a-a53e-89df49c13b16
+```
+This avoids CORS issues in development without changing browser settings. If you edit `package.json`, restart `npm start`.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Production note: CRA’s proxy is dev-only. For production, use a small backend (server or serverless) to relay requests, or ensure CORS headers are set by the destination.
 
-### `npm test`
+### Payload Format
+Example payload sent on "Save the segment":
+```json
+{
+  "segment_name": "last_10_days_blog_visits",
+  "schema": [
+    { "first_name": "First Name" },
+    { "last_name": "Last Name" }
+  ]
+}
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Customize
+- Schema options: edit `SCHEMA_OPTIONS` in `src/components/SegmentModal.js`.
+- Trait color dot: `getTraitType` marks `account_name` as group, others as user; tweak as needed.
+- UI: adjust styles in `src/components/SegmentModal.css` (right-side drawer, colors, spacing).
 
-### `npm run build`
+### File Structure (relevant)
+- `src/App.js`: renders the Save Segment entry and mounts `SegmentModal`
+- `src/components/SegmentModal.js`: modal UI and logic
+- `src/components/SegmentModal.css`: component styles
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Scripts
+```
+npm start       # run dev server
+npm run build   # production build
+npm test        # tests (CRA default wiring)
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Troubleshooting
+- If you see CORS in production builds, add a server relay or enable CORS on the webhook.
+- If proxy changes don’t take effect, stop and restart the dev server.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
