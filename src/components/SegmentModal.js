@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import axios from 'axios';
 import './SegmentModal.css';
 
 const SCHEMA_OPTIONS = [
@@ -16,15 +17,20 @@ export default function SegmentModal({ isOpen, onClose }) {
   const [primarySelection, setPrimarySelection] = useState('');
   const [selectedSchemas, setSelectedSchemas] = useState([]);
   const [saveStatus, setSaveStatus] = useState('idle');
-  const [saveMessage, setSaveMessage] = useState('');
 
   const unselectedOptions = useMemo(() => {
     return SCHEMA_OPTIONS.filter(o => !selectedSchemas.includes(o.value));
   }, [selectedSchemas]);
 
-  function cleanupAndClose() {
+  function resetAllState() {
+    setSegmentName('');
+    setPrimarySelection('');
+    setSelectedSchemas([]);
     setSaveStatus('idle');
-    setSaveMessage('');
+  }
+
+  function cleanupAndClose() {
+    resetAllState();
     onClose();
   }
 
@@ -66,34 +72,28 @@ export default function SegmentModal({ isOpen, onClose }) {
     };
 
     if (!payload.segment_name || payload.schema.length === 0) {
-      setSaveStatus('error');
-      setSaveMessage('Please enter a segment name and add at least one schema.');
+      // eslint-disable-next-line no-alert
+      alert('Please enter a segment name and add at least one schema.');
       return;
     }
 
     try {
       setSaveStatus('saving');
-      setSaveMessage('Saving...');
 
       // Use CRA dev proxy (configured in package.json) to avoid CORS in development
-      const res = await fetch('/fbe4d0ba-5b71-4a9a-a53e-89df49c13b16', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      await axios.post('/fbe4d0ba-5b71-4a9a-a53e-89df49c13b16', payload, {
+        headers: { 'Content-Type': 'application/json' }
       });
 
-      if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
-      }
-
-      setSaveStatus('success');
-      setSaveMessage('Segment saved successfully.');
-      // console payload for visibility during development
-      // eslint-disable-next-line no-console
-      console.log('Saved payload:', payload);
+      setSaveStatus('idle');
+      // eslint-disable-next-line no-alert
+      alert('Segment saved successfully.');
+      resetAllState();
+      onClose();
     } catch (err) {
-      setSaveStatus('error');
-      setSaveMessage('Failed to save segment. Check console for details.');
+      setSaveStatus('idle');
+      // eslint-disable-next-line no-alert
+      alert('Failed to save segment. Please try again.');
       // eslint-disable-next-line no-console
       console.error('Save error', err);
     }
@@ -159,12 +159,13 @@ export default function SegmentModal({ isOpen, onClose }) {
 
           <div className="add-row">
             <div className="schema-add">
+              <span className="dot neutral" />
               <select
                 id="addSchema"
                 value={primarySelection}
                 onChange={e => setPrimarySelection(e.target.value)}
               >
-                <option value="" disabled>Select schema</option>
+                <option value="" disabled>Add Schema To Segment</option>
                 {unselectedOptions.map(o => (
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
@@ -192,11 +193,7 @@ export default function SegmentModal({ isOpen, onClose }) {
           <button className="secondary-button" onClick={cleanupAndClose}>Cancel</button>
         </div>
 
-        {saveStatus !== 'idle' && (
-          <div className={`save-status ${saveStatus}`}>
-            {saveMessage}
-          </div>
-        )}
+        
       </div>
     </div>
   );

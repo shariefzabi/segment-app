@@ -1,0 +1,25 @@
+.page {
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-height: 100vh;
+  background: #f6f8fa;
+  padding-top: 22px;
+  padding-left: 96px;
+}
+
+.primary-button {
+  background: #41b494;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
